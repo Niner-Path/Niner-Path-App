@@ -29,5 +29,5 @@ NinerPath is a web-based platform designed to help college students navigate the
 
 ### **1️⃣ Clone the Repository**
 ```sh
-git clone https://github.com/NinerPathOrg/NinerPath.git
+git clone https://github.com/Niner-Path/Niner-Path-App
 cd NinerPath
