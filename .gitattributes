@@ -1,0 +1,12 @@
+# Set default behavior to automatically handle text files
+* text=auto
+
+# Enforce LF for key file types
+*.py text eol=lf
+*.js text eol=lf
+*.json text eol=lf
+*.mjs text eol=lf
+*.css text eol=lf
+*.md text eol=lf
+*.sh text eol=lf
+*.yml text eol=lf
