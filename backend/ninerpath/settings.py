@@ -74,10 +74,6 @@ WSGI_APPLICATION = 'ninerpath.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
-import os
-from dotenv import load_dotenv
-
-# Load environment variables
 load_dotenv()
 
 DATABASES = {
