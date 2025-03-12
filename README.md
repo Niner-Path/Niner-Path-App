@@ -5,7 +5,7 @@ NinerPath is a web-based platform designed to help college students navigate the
 
 🔹 **Tech Stack**
 - **Frontend:** [Next.js](https://nextjs.org/), [TailwindCSS](https://tailwindcss.com/), Recharts
-- **Backend:** [Node.js (Express)](https://expressjs.com/), [Python (FastAPI)](https://fastapi.tiangolo.com/)
+- **Backend:** [Python (Django)] (https://www.djangoproject.com/), [Python (FastAPI)](https://fastapi.tiangolo.com/)
 - **Database:** [PostgreSQL](https://www.postgresql.org/)
 - **AI Features:** Machine Learning for career recommendations, NLP-based chatbot
 - **APIs:** Bureau of Labor Statistics API, LinkedIn API, OpenFinance API

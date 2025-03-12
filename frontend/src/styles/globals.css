@@ -19,6 +19,11 @@ body {
   align-items: center;
 }
 
+body.backgroundImage {
+  background: url("/northern_lights.jpeg") no-repeat center center fixed;
+  background-size: cover;
+}
+
 /* Typography */
 h1 {
   font-weight: bold;
