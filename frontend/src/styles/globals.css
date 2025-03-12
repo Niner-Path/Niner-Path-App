@@ -8,13 +8,15 @@
 /* Body Styles */
 body {
   background: #f6f5f7;
+  font-family: "Montserrat", sans-serif;
+  height: 100vh;
+  width: 100vw;
+  margin: 0; 
+  padding: 0; 
+  overflow: hidden;
   display: flex;
   justify-content: center;
   align-items: center;
-  flex-direction: column;
-  font-family: "Montserrat", sans-serif;
-  height: 100vh;
-  margin: -20px 0 50px;
 }
 
 /* Typography */
@@ -49,8 +51,8 @@ a {
 /* Buttons */
 button {
   border-radius: 20px;
-  border: 1px solid #ff4b2b;
-  background-color: #ff4b2b;
+  border: 1px solid #c89b08;
+  background-color: #c89b08;
   color: #ffffff;
   font-size: 12px;
   font-weight: bold;
