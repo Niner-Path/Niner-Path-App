@@ -8,7 +8,6 @@ from rest_framework.authtoken.models import Token
 
 User = get_user_model()
 
-# User Registration
 class RegisterView(generics.CreateAPIView):
     queryset = User.objects.all()
     serializer_class = RegisterSerializer
@@ -20,7 +19,6 @@ class RegisterView(generics.CreateAPIView):
         login(request, user)
         return response
 
-# User Login
 class LoginView(APIView):
     permission_classes = [AllowAny]
 
@@ -37,20 +35,18 @@ class LoginView(APIView):
                     "message": "Login successful",
                     "has_completed_questionnaire": user.has_completed_questionnaire,
                     "user": UserSerializer(user).data,
-                    "token": token.key, 
+                    "token": token.key,
                 },
                 status=status.HTTP_200_OK,
             )
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-
-User = get_user_model()
-
 class UpdateQuestionnaireView(APIView):
-    permission_classes = [IsAuthenticated]  
+    permission_classes = [IsAuthenticated]
+
     def post(self, request):
-        if not request.user or request.user.is_anonymous:
+        if request.user.is_anonymous:
             return Response(
                 {"error": "User is not authenticated"},
                 status=status.HTTP_401_UNAUTHORIZED,
@@ -59,13 +55,9 @@ class UpdateQuestionnaireView(APIView):
         user = request.user
         user.has_completed_questionnaire = True
         user.save()
+        return Response({"message": "Questionnaire updated successfully"}, status=status.HTTP_200_OK)
 
-        return Response(
-            {"message": "Questionnaire updated successfully"},
-            status=status.HTTP_200_OK,
-        )
 
-# User Logout
 class LogoutView(APIView):
     def post(self, request):
         logout(request)

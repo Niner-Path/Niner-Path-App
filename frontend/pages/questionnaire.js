@@ -9,29 +9,38 @@ export default function Questionnaire() {
   const handleSubmit = async (event) => {
     event.preventDefault();
 
+    // Retrieve token from localStorage
     const token = localStorage.getItem("token");
-
     if (!token) {
       alert("You are not authenticated. Please log in.");
       return;
     }
 
-    const response = await fetch(
-      "http://127.0.0.1:8000/update-questionnaire/",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Token ${token}`,
-        },
-      }
-    );
+    try {
+      const response = await fetch(
+        "http://127.0.0.1:8000/update-questionnaire/",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Token ${token}`,
+          },
+          credentials: "include",
+          body: JSON.stringify({
+            careerGoals,
+            skills,
+          }),
+        }
+      );
 
-    const data = await response.json();
-    if (response.ok) {
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.error || "Something went wrong");
+      }
+
       router.push("/dashboard");
-    } else {
-      alert(`Something went wrong: ${data.error || "Try again."}`);
+    } catch (err) {
+      alert(err.message);
     }
   };
 
@@ -44,7 +53,6 @@ export default function Questionnaire() {
         <p className="text-gray-500 text-center mb-6">
           This helps us customize your experience.
         </p>
-
         <form onSubmit={handleSubmit}>
           <div className="mb-4">
             <label className="block text-gray-700">
@@ -57,7 +65,6 @@ export default function Questionnaire() {
               required
             />
           </div>
-
           <div className="mb-4">
             <label className="block text-gray-700">
               What skills do you have?
@@ -70,7 +77,6 @@ export default function Questionnaire() {
               required
             />
           </div>
-
           <button
             type="submit"
             className="w-full bg-gold text-white py-2 px-4 rounded hover:bg-yellow-600"
