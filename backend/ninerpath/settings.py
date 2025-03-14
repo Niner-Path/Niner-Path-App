@@ -24,9 +24,7 @@ INSTALLED_APPS = [
 
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": [
-        # SessionAuthentication can remain if you also want session logins
         "rest_framework.authentication.SessionAuthentication",
-        # We add TokenAuthentication so 'Authorization: Token <token>' is recognized
         "rest_framework.authentication.TokenAuthentication",
     ],
     "DEFAULT_PERMISSION_CLASSES": [
