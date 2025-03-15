@@ -1,5 +1,6 @@
 from django.contrib.auth import get_user_model, authenticate
 from rest_framework import serializers
+from core.models import CareerRoadmap
 
 User = get_user_model()
 
@@ -7,6 +8,7 @@ class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ["id", "username", "email", "has_completed_questionnaire"]
+
 
 class RegisterSerializer(serializers.ModelSerializer):
     class Meta:
@@ -24,6 +26,7 @@ class RegisterSerializer(serializers.ModelSerializer):
         )
         return user
 
+
 class LoginSerializer(serializers.Serializer):
     email = serializers.EmailField()
     password = serializers.CharField(write_only=True)
@@ -33,3 +36,9 @@ class LoginSerializer(serializers.Serializer):
         if not user:
             raise serializers.ValidationError("Invalid credentials")
         return user
+
+
+class CareerRoadmapSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CareerRoadmap
+        fields = "__all__"

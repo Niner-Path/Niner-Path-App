@@ -2,9 +2,10 @@ from django.contrib.auth import login, logout, get_user_model
 from rest_framework.response import Response
 from rest_framework import status, generics
 from rest_framework.views import APIView
-from .serializers import RegisterSerializer, LoginSerializer, UserSerializer
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.authtoken.models import Token
+from .serializers import RegisterSerializer, LoginSerializer, UserSerializer, CareerRoadmapSerializer
+from .models import CareerRoadmap
 
 User = get_user_model()
 
@@ -65,6 +66,30 @@ class UpdateQuestionnaireView(APIView):
         user.has_completed_questionnaire = True
         user.save()
         return Response({"message": "Questionnaire updated successfully"}, status=status.HTTP_200_OK)
+
+class CareerRoadmapView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        user = request.user
+        try:
+            roadmap = CareerRoadmap.objects.get(user=user)
+            serializer = CareerRoadmapSerializer(roadmap)
+            return Response(serializer.data)
+        except CareerRoadmap.DoesNotExist:
+            return Response({"error": "No roadmap found"}, status=404)
+
+class CareerRoadmapDeleteView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def delete(self, request):
+        user = request.user
+        try:
+            roadmap = CareerRoadmap.objects.get(user=user)
+            roadmap.delete()
+            return Response({"message": "Career roadmap deleted successfully"}, status=status.HTTP_204_NO_CONTENT)
+        except CareerRoadmap.DoesNotExist:
+            return Response({"error": "No career roadmap found"}, status=status.HTTP_404_NOT_FOUND)
 
 
 class LogoutView(APIView):

@@ -1,5 +1,6 @@
-from django.contrib.auth.models import AbstractUser
 from django.db import models
+from django.contrib.auth.models import AbstractUser
+
 
 class CustomUser(AbstractUser):
     email = models.EmailField(unique=True)
@@ -21,5 +22,13 @@ class CustomUser(AbstractUser):
     USERNAME_FIELD = "email"  
     REQUIRED_FIELDS = ["username"]
 
+
+class CareerRoadmap(models.Model):
+    user = models.OneToOneField(CustomUser, on_delete=models.CASCADE, related_name="career_roadmap")
+    career_goal = models.CharField(max_length=255)
+    milestones = models.JSONField(default=list)
+    completed_milestones = models.JSONField(default=list)
+
+
     def __str__(self):
-        return self.email
+        return f"{self.user.email} - {self.career_goal}"
