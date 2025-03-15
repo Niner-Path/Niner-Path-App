@@ -4,8 +4,12 @@ from rest_framework import status, generics
 from rest_framework.views import APIView
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.authtoken.models import Token
+from rest_framework.generics import get_object_or_404
 from .serializers import RegisterSerializer, LoginSerializer, UserSerializer, CareerRoadmapSerializer
 from .models import CareerRoadmap
+from django.utils.decorators import method_decorator
+from django.views.decorators.csrf import csrf_exempt
+
 
 User = get_user_model()
 
@@ -29,8 +33,13 @@ class RegisterView(generics.CreateAPIView):
             status=status.HTTP_201_CREATED,
         )
 
+
 class LoginView(APIView):
     permission_classes = [AllowAny]
+
+    @method_decorator(csrf_exempt)
+    def dispatch(self, *args, **kwargs):
+        return super().dispatch(*args, **kwargs)
 
     def post(self, request):
         serializer = LoginSerializer(data=request.data)
@@ -52,6 +61,14 @@ class LoginView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
+class LogoutView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        logout(request)
+        return Response({"message": "Logged out"}, status=status.HTTP_200_OK)
+
+
 class UpdateQuestionnaireView(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -67,32 +84,37 @@ class UpdateQuestionnaireView(APIView):
         user.save()
         return Response({"message": "Questionnaire updated successfully"}, status=status.HTTP_200_OK)
 
+
 class CareerRoadmapView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
-        user = request.user
-        try:
-            roadmap = CareerRoadmap.objects.get(user=user)
-            serializer = CareerRoadmapSerializer(roadmap)
-            return Response(serializer.data)
-        except CareerRoadmap.DoesNotExist:
-            return Response({"error": "No roadmap found"}, status=404)
+        roadmap = get_object_or_404(CareerRoadmap, user=request.user)
+        serializer = CareerRoadmapSerializer(roadmap)
+        return Response(serializer.data)
 
-class CareerRoadmapDeleteView(APIView):
-    permission_classes = [IsAuthenticated]
+    def post(self, request):
+        if CareerRoadmap.objects.filter(user=request.user).exists():
+            return Response({"error": "Career roadmap already exists"}, status=status.HTTP_400_BAD_REQUEST)
+
+        serializer = CareerRoadmapSerializer(data=request.data, context={"request": request})
+        if serializer.is_valid():
+            serializer.save(user=request.user) 
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+    def put(self, request):
+        roadmap = get_object_or_404(CareerRoadmap, user=request.user)
+        serializer = CareerRoadmapSerializer(roadmap, data=request.data, partial=True)
+        
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 
     def delete(self, request):
-        user = request.user
-        try:
-            roadmap = CareerRoadmap.objects.get(user=user)
-            roadmap.delete()
-            return Response({"message": "Career roadmap deleted successfully"}, status=status.HTTP_204_NO_CONTENT)
-        except CareerRoadmap.DoesNotExist:
-            return Response({"error": "No career roadmap found"}, status=status.HTTP_404_NOT_FOUND)
-
-
-class LogoutView(APIView):
-    def post(self, request):
-        logout(request)
-        return Response({"message": "Logged out"}, status=status.HTTP_200_OK)
+        roadmap = get_object_or_404(CareerRoadmap, user=request.user)
+        roadmap.delete()
+        return Response({"message": "Career roadmap deleted successfully"}, status=status.HTTP_204_NO_CONTENT)

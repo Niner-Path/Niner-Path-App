@@ -41,4 +41,9 @@ class LoginSerializer(serializers.Serializer):
 class CareerRoadmapSerializer(serializers.ModelSerializer):
     class Meta:
         model = CareerRoadmap
-        fields = "__all__"
+        fields = ["career_goal", "milestones", "completed_milestones"]
+
+        def create(self, validated_data):
+            user = self.content["request"].user
+            validated_data["user"] = user
+            return super().create(validated_data)

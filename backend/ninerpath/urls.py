@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.urls import path, include
 from django.shortcuts import redirect  
-from core.views import RegisterView, LoginView, LogoutView, UpdateQuestionnaireView, CareerRoadmapView, CareerRoadmapDeleteView
+from core.views import RegisterView, LoginView, LogoutView, UpdateQuestionnaireView, CareerRoadmapView
 
 NEXTJS_AUTH_URL = "http://localhost:3000/login"
 
@@ -13,7 +13,6 @@ urlpatterns = [
     path('update-questionnaire/', UpdateQuestionnaireView.as_view(), name='update-questionnaire'),
 
     path('career-roadmap/', CareerRoadmapView.as_view(), name='career-roadmap'),  
-    path('career-roadmap/delete/', CareerRoadmapDeleteView.as_view(), name='career-roadmap-delete'), 
 
     path('api-auth/', include('rest_framework.urls')),  
 
