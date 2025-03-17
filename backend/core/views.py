@@ -2,10 +2,10 @@ from django.contrib.auth import login, logout, get_user_model
 from rest_framework.response import Response
 from rest_framework import status, generics
 from rest_framework.views import APIView
-from .serializers import RegisterSerializer, LoginSerializer, UserSerializer, JobListingsSerializer
+from .serializers import RegisterSerializer, LoginSerializer, UserSerializer, JobPreferenceSerializer
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.authtoken.models import Token
-from .models import GetJobListings
+from .models import JobPreference
 
 from django.shortcuts import render
 
@@ -78,17 +78,17 @@ class LogoutView(APIView):
 
 
 
-class GetJobListingsView(APIView):  
+class JobPreferenceView(APIView):  
     #permission_classes = [IsAuthenticated]
 
     def get(self, request):
         user = request.user
 
         try:
-            job_listings = GetJobListings.objects.filter(user=user) 
-            if not job_listings.exists():
+            job_preference = JobPreference.objects.filter(user=user) 
+            if not job_preference.exists():
                 return Response({"error": "No job listings found"}, status=status.HTTP_404_NOT_FOUND)
-            serializer = JobListingsSerializer(job_listings, many=True)  
+            serializer = JobPreferenceSerializer(job_preference, many=True)  
             return Response(serializer.data)
         except Exception as e:
             return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)  
@@ -98,7 +98,7 @@ class GetJobListingsView(APIView):
         data = request.data.copy()
         data['user'] = user.id
 
-        serializer = JobListingsSerializer(data=data)
+        serializer = JobPreferenceSerializer(data=data)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
@@ -106,25 +106,5 @@ class GetJobListingsView(APIView):
 
     def put(self, request):
         user = request.user        
-        serializer = JobListingsSerializer(data=data)
+        serializer = JobPreferenceSerializer(data=data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-
-
-
-
-'''def job_listings(request):
-    keywords = request.GET.get('keywords', 'Python Developer')
-    location = request.GET.get('location', 'San Francisco')
-    
-    # Fetch job listings
-    job_results = get_job_listings(keywords, location, pagesize=10)
-    
-    if 'error' in job_results:
-        error_message = job_results['error']
-        job_results = None
-    else:
-        error_message = None
-
-    # Render the template with results or error
-    return render(request, 'job_listings.html', {'job_results': job_results, 'error_message': error_message})'''

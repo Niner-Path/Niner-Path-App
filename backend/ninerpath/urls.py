@@ -1,4 +1,4 @@
-from core.views import RegisterView, LoginView, LogoutView, UpdateQuestionnaireView, GetJobListingsView
+from core.views import RegisterView, LoginView, LogoutView, UpdateQuestionnaireView, JobPreferenceView
 from django.contrib import admin
 from django.urls import path, include
 from django.shortcuts import redirect  
@@ -15,6 +15,6 @@ urlpatterns = [
 
 
     # Job listings view
-    path('get-job-listings/', GetJobListingsView.as_view(), name='get-job-listings'),
+    path('job-preference/', JobPreferenceView.as_view(), name='job-preference'),
 
 ]

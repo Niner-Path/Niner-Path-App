@@ -1,6 +1,6 @@
 from django.contrib.auth import get_user_model, authenticate
 from rest_framework import serializers
-from core.models import GetJobListings
+from core.models import JobPreference
 
 User = get_user_model()
 
@@ -36,7 +36,7 @@ class LoginSerializer(serializers.Serializer):
         return user
 
 
-class JobListingsSerializer(serializers.ModelSerializer):
+class JobPreferenceSerializer(serializers.ModelSerializer):
     class Meta:
-        model = GetJobListings
+        model = JobPreference
         fields = "__all__"
