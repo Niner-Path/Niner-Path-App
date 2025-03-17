@@ -32,3 +32,11 @@ class CareerRoadmap(models.Model):
 
     def __str__(self):
         return f"{self.user.email} - {self.career_goal}"
+
+
+class CareerTemplate(models.Model):
+    career_name = models.CharField(max_length=255, unique=True)
+    milestones = models.JSONField(default=list)
+
+    def __str__(self):
+        return self.career_name

@@ -6,10 +6,9 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.authtoken.models import Token
 from rest_framework.generics import get_object_or_404
 from .serializers import RegisterSerializer, LoginSerializer, UserSerializer, CareerRoadmapSerializer
-from .models import CareerRoadmap
+from .models import CareerRoadmap, CareerTemplate
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
-
 
 User = get_user_model()
 
@@ -20,15 +19,29 @@ class RegisterView(generics.CreateAPIView):
 
     def create(self, request, *args, **kwargs):
         response = super().create(request, *args, **kwargs)
+        
         user = User.objects.get(email=request.data["email"])
-        login(request, user)
+        
+        career_goal = request.data.get("career_goal")
+        if not career_goal:
+            return Response({"error": "Career goal is required"}, status=400)
 
-        token, _ = Token.objects.get_or_create(user=user)
+        try:
+            template = CareerTemplate.objects.get(career_name=career_goal)
+        except CareerTemplate.DoesNotExist:
+            return Response({"error": "No matching career template found"}, status=404)
+
+        roadmap = CareerRoadmap.objects.create(
+            user=user,
+            career_goal=template.career_name,
+            milestones=template.milestones
+        )
+
         return Response(
             {
                 "message": "Registration successful",
                 "user": UserSerializer(user).data,
-                "token": token.key,
+                "roadmap": CareerRoadmapSerializer(roadmap).data,
             },
             status=status.HTTP_201_CREATED,
         )
@@ -60,7 +73,7 @@ class LoginView(APIView):
             )
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-
+@method_decorator(csrf_exempt, name='dispatch')
 class LogoutView(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -84,7 +97,7 @@ class UpdateQuestionnaireView(APIView):
         user.save()
         return Response({"message": "Questionnaire updated successfully"}, status=status.HTTP_200_OK)
 
-
+@method_decorator(csrf_exempt, name='dispatch')
 class CareerRoadmapView(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -99,10 +112,9 @@ class CareerRoadmapView(APIView):
 
         serializer = CareerRoadmapSerializer(data=request.data, context={"request": request})
         if serializer.is_valid():
-            serializer.save(user=request.user) 
+            serializer.save(user=request.user)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
 
     def put(self, request):
         roadmap = get_object_or_404(CareerRoadmap, user=request.user)
@@ -112,7 +124,6 @@ class CareerRoadmapView(APIView):
             serializer.save()
             return Response(serializer.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
 
     def delete(self, request):
         roadmap = get_object_or_404(CareerRoadmap, user=request.user)
