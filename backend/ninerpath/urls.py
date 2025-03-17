@@ -1,7 +1,8 @@
-from core.views import RegisterView, LoginView, LogoutView, UpdateQuestionnaireView
+from core.views import RegisterView, LoginView, LogoutView, UpdateQuestionnaireView, GetJobListingsView
 from django.contrib import admin
 from django.urls import path, include
 from django.shortcuts import redirect  
+from core import views
 
 NEXTJS_AUTH_URL = "http://localhost:3000/login"
 
@@ -11,4 +12,9 @@ urlpatterns = [
     path('logout/', LogoutView.as_view(), name='logout'),
     path('update-questionnaire/', UpdateQuestionnaireView.as_view(), name='update-questionnaire'),
     path('', lambda request: redirect(NEXTJS_AUTH_URL, permanent=True)),
+
+
+    # Job listings view
+    path('get-job-listings/', GetJobListingsView.as_view(), name='get-job-listings'),
+
 ]

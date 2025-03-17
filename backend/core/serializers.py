@@ -1,5 +1,6 @@
 from django.contrib.auth import get_user_model, authenticate
 from rest_framework import serializers
+from core.models import GetJobListings
 
 User = get_user_model()
 
@@ -33,3 +34,9 @@ class LoginSerializer(serializers.Serializer):
         if not user:
             raise serializers.ValidationError("Invalid credentials")
         return user
+
+
+class JobListingsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = GetJobListings
+        fields = "__all__"

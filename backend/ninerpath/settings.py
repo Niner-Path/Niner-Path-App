@@ -6,6 +6,9 @@ import dj_database_url
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 SECRET_KEY = config('SECRET_KEY', default='django-insecure-$-2k7+4c#p26ghsnad7()o*=xt#^=r8^rwsr5m804+3%o-ywta')
+
+RAPIDAPI_KEY = '462354e9c7msha7f0c62ae0a13fep162efejsnd22da35b14f0'
+
 DEBUG = config('DEBUG', default=True, cast=bool)
 ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='localhost,127.0.0.1', cast=Csv())
 
