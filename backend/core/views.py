@@ -21,7 +21,16 @@ class RegisterView(generics.CreateAPIView):
         response = super().create(request, *args, **kwargs)
         user = User.objects.get(email=request.data["email"])
         login(request, user)
-        return response
+
+        token, _ = Token.objects.get_or_create(user=user)
+        return Response(
+            {
+                "message": "Registration successful",
+                "user": UserSerializer(user).data,
+                "token": token.key,
+            },
+            status=status.HTTP_201_CREATED,
+        )
 
 class LoginView(APIView):
     permission_classes = [AllowAny]
