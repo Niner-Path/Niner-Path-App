@@ -39,4 +39,14 @@ class LoginSerializer(serializers.Serializer):
 class JobPreferenceSerializer(serializers.ModelSerializer):
     class Meta:
         model = JobPreference
-        fields = "__all__"
+        fields = ["user", "keywords", "location"]
+
+        def create(self, validated_data):   
+            print("*Serializer Create:")
+            print(validated_data)    
+            jobpreference = JobPreference.objects.create_jobpreference(
+                user=validated_data["user"],
+                keywords=validated_data["keywords"],
+                location=validated_data["location"]
+            )
+            return jobpreference

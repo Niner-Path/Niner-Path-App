@@ -6,6 +6,8 @@ from .serializers import RegisterSerializer, LoginSerializer, UserSerializer, Jo
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.authtoken.models import Token
 from .models import JobPreference
+from django.utils.decorators import method_decorator
+from django.views.decorators.csrf import csrf_exempt
 
 from django.shortcuts import render
 
@@ -36,6 +38,7 @@ class LoginView(APIView):
     permission_classes = [AllowAny]
 
     def post(self, request):
+        print(request) #TEST
         serializer = LoginSerializer(data=request.data)
         if serializer.is_valid():
             user = serializer.validated_data
@@ -71,15 +74,16 @@ class UpdateQuestionnaireView(APIView):
         return Response({"message": "Questionnaire updated successfully"}, status=status.HTTP_200_OK)
 
 
+@method_decorator(csrf_exempt, name='dispatch')
 class LogoutView(APIView):
     def post(self, request):
         logout(request)
         return Response({"message": "Logged out"}, status=status.HTTP_200_OK)
 
 
-
+@method_decorator(csrf_exempt, name='dispatch')
 class JobPreferenceView(APIView):  
-    #permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated]
 
     def get(self, request):
         user = request.user
@@ -93,11 +97,19 @@ class JobPreferenceView(APIView):
         except Exception as e:
             return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)  
 
+
     def post(self, request):
         user = request.user
+        print("Handling POST in job-preference view") #TEST PRINT
+        print(request) #TEST
         data = request.data.copy()
         data['user'] = user.id
 
+        print(user) #TEST
+        data['keywords'] = request.keywords #TEST
+        data['location'] = request.location #TEST
+        print(data) #TEST
+        
         serializer = JobPreferenceSerializer(data=data)
         if serializer.is_valid():
             serializer.save()
@@ -106,5 +118,5 @@ class JobPreferenceView(APIView):
 
     def put(self, request):
         user = request.user        
-        serializer = JobPreferenceSerializer(data=data)
+        serializer = JobPreferenceSerializer(data=request.data) # changed data=data to data=request.data
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
