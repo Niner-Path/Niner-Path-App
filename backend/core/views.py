@@ -87,6 +87,7 @@ class JobPreferenceView(APIView):
 
     def get(self, request):
         user = request.user
+        print(user)  #TEST
 
         try:
             job_preference = JobPreference.objects.filter(user=user) 
@@ -97,24 +98,15 @@ class JobPreferenceView(APIView):
         except Exception as e:
             return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)  
 
-
     def post(self, request):
-        user = request.user
-        print("Handling POST in job-preference view") #TEST PRINT
-        print(request) #TEST
-        data = request.data.copy()
-        data['user'] = user.id
+            if JobPreference.objects.filter(user=request.user).exists():
+                return Response({"error": "Job preference already exists"}, status=status.HTTP_400_BAD_REQUEST)
 
-        print(user) #TEST
-        data['keywords'] = request.keywords #TEST
-        data['location'] = request.location #TEST
-        print(data) #TEST
-        
-        serializer = JobPreferenceSerializer(data=data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            serializer = JobPreferenceSerializer(data=request.data, context={"request": request})
+            if serializer.is_valid():
+                serializer.save(user=request.user)
+                return Response(serializer.data, status=status.HTTP_201_CREATED)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def put(self, request):
         user = request.user        

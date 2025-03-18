@@ -32,6 +32,7 @@ class JobPreference(models.Model):
     user = models.OneToOneField(CustomUser, on_delete=models.CASCADE, related_name="job_preference")
     keywords = models.CharField(max_length=255)
     location = models.CharField(max_length=255)
+    
     def __str__(self):  
         return f"{self.user.email}: {self.keywords} - {self.location}"     
 
