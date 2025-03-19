@@ -13,7 +13,6 @@ urlpatterns = [
     path('update-questionnaire/', UpdateQuestionnaireView.as_view(), name='update-questionnaire'),
     path('', lambda request: redirect(NEXTJS_AUTH_URL, permanent=True)),
 
-
     # Job listings view
     path('job-preference/', JobPreferenceView.as_view(), name='job-preference'),
 

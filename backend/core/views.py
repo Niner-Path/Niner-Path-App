@@ -8,6 +8,7 @@ from rest_framework.authtoken.models import Token
 from .models import JobPreference
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
+from rest_framework.generics import get_object_or_404
 
 from django.shortcuts import render
 
@@ -105,10 +106,20 @@ class JobPreferenceView(APIView):
             serializer = JobPreferenceSerializer(data=request.data, context={"request": request})
             if serializer.is_valid():
                 serializer.save(user=request.user)
+                
                 return Response(serializer.data, status=status.HTTP_201_CREATED)
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def put(self, request):
-        user = request.user        
-        serializer = JobPreferenceSerializer(data=request.data) # changed data=data to data=request.data
+        jobpreference = get_object_or_404(JobPreference, user=request.user)
+        serializer = JobPreferenceSerializer(jobpreference, data=request.data, partial=True)
+        
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def delete(self, request):
+        jobpreference = get_object_or_404(JobPreference, user=request.user)
+        jobpreference.delete()
+        return Response({"message": "Job preference deleted successfully"}, status=status.HTTP_204_NO_CONTENT)
