@@ -19,29 +19,12 @@ class RegisterView(generics.CreateAPIView):
 
     def create(self, request, *args, **kwargs):
         response = super().create(request, *args, **kwargs)
-        
         user = User.objects.get(email=request.data["email"])
-        
-        career_goal = request.data.get("career_goal")
-        if not career_goal:
-            return Response({"error": "Career goal is required"}, status=400)
-
-        try:
-            template = CareerTemplate.objects.get(career_name=career_goal)
-        except CareerTemplate.DoesNotExist:
-            return Response({"error": "No matching career template found"}, status=404)
-
-        roadmap = CareerRoadmap.objects.create(
-            user=user,
-            career_goal=template.career_name,
-            milestones=template.milestones
-        )
 
         return Response(
             {
                 "message": "Registration successful",
                 "user": UserSerializer(user).data,
-                "roadmap": CareerRoadmapSerializer(roadmap).data,
             },
             status=status.HTTP_201_CREATED,
         )
@@ -92,10 +75,33 @@ class UpdateQuestionnaireView(APIView):
                 status=status.HTTP_401_UNAUTHORIZED,
             )
 
-        user = request.user
-        user.has_completed_questionnaire = True
-        user.save()
-        return Response({"message": "Questionnaire updated successfully"}, status=status.HTTP_200_OK)
+        career_goal = request.data.get("careerGoals")
+        if not career_goal:
+            return Response({"error": "Career goal is required"}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            template = CareerTemplate.objects.get(career_name=career_goal)
+        except CareerTemplate.DoesNotExist:
+            return Response({"error": "No matching career template found"}, status=status.HTTP_404_NOT_FOUND)
+
+        roadmap, created = CareerRoadmap.objects.get_or_create(
+            user=request.user,
+            defaults={
+                "career_goal": template.career_name,
+                "milestones": template.milestones,
+            }
+        )
+
+        request.user.has_completed_questionnaire = True
+        request.user.save()
+
+        return Response(
+            {
+                "message": "Questionnaire updated successfully",
+                "roadmap": CareerRoadmapSerializer(roadmap).data,
+            },
+            status=status.HTTP_200_OK,
+        )
 
 @method_decorator(csrf_exempt, name='dispatch')
 class CareerRoadmapView(APIView):
