@@ -7,7 +7,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 SECRET_KEY = config('SECRET_KEY', default='django-insecure-$-2k7+4c#p26ghsnad7()o*=xt#^=r8^rwsr5m804+3%o-ywta')
 
-API_KEY = '0b162128-22e9-4e33-a232-a699fba6c00c'
+JOOBLE_API_KEY = '0b162128-22e9-4e33-a232-a699fba6c00c'
 
 DEBUG = config('DEBUG', default=True, cast=bool)
 ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='localhost,127.0.0.1,desktop-pbsit0n', cast=Csv())

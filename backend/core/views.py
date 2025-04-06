@@ -9,6 +9,7 @@ from .models import JobPreference
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework.generics import get_object_or_404
+import requests
 
 from django.shortcuts import render
 
@@ -123,3 +124,69 @@ class JobPreferenceView(APIView):
         jobpreference = get_object_or_404(JobPreference, user=request.user)
         jobpreference.delete()
         return Response({"message": "Job preference deleted successfully"}, status=status.HTTP_204_NO_CONTENT)
+    
+
+@method_decorator(csrf_exempt, name='dispatch')
+class JobListingView(APIView): 
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        app_id = "a4628272"
+        app_key = "cde28e8190089fc760fe79a516ee77db"
+
+        country = "us"
+        keyword = "Software Engineer"
+        location = "North Carolina"
+        results = 10
+
+        user = request.user
+        print(user)  #TEST
+
+        try:
+            job_preference = JobPreference.objects.filter(user=user) 
+            if not job_preference.exists():
+                return Response({"error": "No job preference found"}, status=status.HTTP_404_NOT_FOUND)
+            serializer = JobPreferenceSerializer(job_preference, many=True)  
+            print(serializer)   # TEST
+           # return Response(serializer.data)
+        except Exception as e:
+            return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR) 
+        
+
+
+        if not app_id or not app_key:
+            return Response("error Adzuna API credentials are not set")
+        
+        base_url = f"https://api.adzuna.com/v1/api/jobs/{country}/search/1"
+
+        params = {
+        "app_id": app_id,
+        "app_key": app_key,
+        "what": keyword,
+        "where": location,
+        "results_per_page": results,
+        "content-type": "application/json"
+        }
+        
+        try:
+            response = requests.get(base_url, params=params)
+            if response.status_code != 200:
+                return Response(f"error Failed to fetch data from Adzuna: {response.status_code}")
+            data = response.json()
+        except requests.exceptions.RequestException as e:
+            print(f"Error fetching data from Adzuna API: {e}")
+
+        if "results" not in data:
+            return Response("error Unknown error from Adzuna API")
+        
+        job_list = []
+        for job in data["results"]:
+            job_info = {
+                "title": job.get("title"),
+                "company": job.get("company", {}).get("display_name"),
+                "location": job.get("location", {}).get("display_name"),
+                "description": job.get("description")
+            }
+            job_list.append(job_info)
+
+        return Response(job_list)

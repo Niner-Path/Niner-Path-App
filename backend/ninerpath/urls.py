@@ -1,4 +1,4 @@
-from core.views import RegisterView, LoginView, LogoutView, UpdateQuestionnaireView, JobPreferenceView
+from core.views import RegisterView, LoginView, LogoutView, UpdateQuestionnaireView, JobPreferenceView, JobListingView
 from django.contrib import admin
 from django.urls import path, include
 from django.shortcuts import redirect  
@@ -13,7 +13,10 @@ urlpatterns = [
     path('update-questionnaire/', UpdateQuestionnaireView.as_view(), name='update-questionnaire'),
     path('', lambda request: redirect(NEXTJS_AUTH_URL, permanent=True)),
 
-    # Job listings view
+    # Job preference view
     path('job-preference/', JobPreferenceView.as_view(), name='job-preference'),
+
+    # Job listing view
+    path('job-listings/', JobListingView.as_view(), name='job-listing'),
 
 ]

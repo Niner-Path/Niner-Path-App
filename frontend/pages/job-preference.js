@@ -6,24 +6,22 @@ const JobPreferencePage = () => {
   const [location, setLocation] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(true);
-  const [token, setToken] = useState(null); // Add state to store token
+  const [token, setToken] = useState(null); 
 
   useEffect(() => {
-    // Check if we're in the browser before accessing localStorage
     if (typeof window !== "undefined") {
       const storedToken = localStorage.getItem("token");
       if (storedToken) {
         setToken(storedToken);
       } else {
         alert("You are not authenticated. Please log in.");
-        return; // If token is missing, return to avoid errors
+        return; 
       }
     }
   }, []);
 
-  // Fetch job preferences from backend
   useEffect(() => {
-    if (!token) return; // If token is not available, don't fetch data
+    if (!token) return; 
 
     const fetchJobPreferences = async () => {
       try {
@@ -50,9 +48,9 @@ const JobPreferencePage = () => {
     };
 
     fetchJobPreferences();
-  }, [token]); // Include token as a dependency
+  }, [token]);
 
-  // Handle deleting job preferences (DELETE)
+  // Deleting job preferences (DELETE)
   const handleDelete = async (id) => {
     try {
       const response = await fetch('http://localhost:8000/job-preference/', {
@@ -74,7 +72,7 @@ const JobPreferencePage = () => {
     }
   };
 
-  // Handle updating job preferences (PUT)
+  // Updating job preferences (PUT)
   const handleUpdate = async (id, updatedKeywords, updatedLocation) => {
     const updatedJobPreference = { keywords: updatedKeywords, location: updatedLocation };
 
