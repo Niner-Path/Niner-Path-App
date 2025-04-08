@@ -10,6 +10,7 @@ from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework.generics import get_object_or_404
 import requests
+from django.conf import settings
 
 from django.shortcuts import render
 
@@ -131,22 +132,22 @@ class JobListingView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
-        app_id = "a4628272"
-        app_key = "cde28e8190089fc760fe79a516ee77db"
 
         country = "us"
-        keyword = "Software Engineer"
-        location = "North Carolina"
+        #keyword = "Software Engineer"
+        #location = "North Carolina"
         results = 10
 
         user = request.user
         print(user)  #TEST
 
         try:
-            job_preference = JobPreference.objects.filter(user=user) 
-            if not job_preference.exists():
+            job_preference = JobPreference.objects.get(user=user) 
+            keywords = job_preference.keywords
+            location = job_preference.location
+            if not job_preference:
                 return Response({"error": "No job preference found"}, status=status.HTTP_404_NOT_FOUND)
-            serializer = JobPreferenceSerializer(job_preference, many=True)  
+            serializer = JobPreferenceSerializer(job_preference)  
             print(serializer)   # TEST
            # return Response(serializer.data)
         except Exception as e:
@@ -154,15 +155,15 @@ class JobListingView(APIView):
         
 
 
-        if not app_id or not app_key:
+        if not settings.ADZUNA_APP_ID or not settings.ADZUNA_API_KEY:
             return Response("error Adzuna API credentials are not set")
         
         base_url = f"https://api.adzuna.com/v1/api/jobs/{country}/search/1"
 
         params = {
-        "app_id": app_id,
-        "app_key": app_key,
-        "what": keyword,
+        "app_id": settings.ADZUNA_APP_ID,
+        "app_key": settings.ADZUNA_API_KEY,
+        "what": keywords,
         "where": location,
         "results_per_page": results,
         "content-type": "application/json"
