@@ -9,6 +9,16 @@ from .serializers import RegisterSerializer, LoginSerializer, UserSerializer, Ca
 from .models import CareerRoadmap, CareerTemplate
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
+import sys
+import os
+
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+ROOT_DIR = os.path.dirname(BASE_DIR)  
+sys.path.append(ROOT_DIR)
+
+from ninerpath_ai.roadmap_ai import generate_roadmap_with_groq
+from ninerpath_ai.schemas import RoadmapStep
+
 
 User = get_user_model()
 
@@ -135,3 +145,38 @@ class CareerRoadmapView(APIView):
         roadmap = get_object_or_404(CareerRoadmap, user=request.user)
         roadmap.delete()
         return Response({"message": "Career roadmap deleted successfully"}, status=status.HTTP_204_NO_CONTENT)
+
+class GenerateRoadmapFromQuestionnaireView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        user = request.user
+        data = request.data
+
+        major = data.get("major")
+        concentration = data.get("concentration")
+        skills = data.get("current_skills", [])
+        interests = data.get("interests", [])
+
+        if not major or not concentration:
+            return Response({"error": "Major and concentration are required."}, status=status.HTTP_400_BAD_REQUEST)
+
+        career_goal, steps = generate_roadmap_with_groq(major, concentration, current_skills=skills, interests=interests)
+
+        roadmap, created = CareerRoadmap.objects.update_or_create(
+            user=user,
+            defaults={
+                "career_goal": career_goal,
+                "milestones": [step.dict() for step in steps],
+                "completed_milestones": [],
+            }
+        )
+
+        user.has_completed_questionnaire = True
+        user.save()
+
+        return Response({
+            "message": "Roadmap generated and saved.",
+            "career_goal": career_goal,
+            "roadmap": roadmap.milestones,
+        }, status=status.HTTP_201_CREATED)

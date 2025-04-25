@@ -1,5 +1,5 @@
 from fastapi import FastAPI
-from roadmap_ai import generate_roadmap_with_groq
+from ninerpath_ai.roadmap_ai import generate_roadmap_with_groq
 from schemas import RoadmapRequest, RoadmapResponse, RoadmapStep
 from dotenv import load_dotenv
 
@@ -13,8 +13,10 @@ def home():
 @app.post("/generate-roadmap", response_model=RoadmapResponse)
 def generate_roadmap(data: RoadmapRequest):
     career_goal, steps = generate_roadmap_with_groq(
-        data.major,
-        data.concentration
+        major=data.major,
+        concentration=data.concentration,
+        current_skills=data.current_skills,
+        interests=data.interests
     )
 
     return RoadmapResponse(

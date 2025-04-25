@@ -79,8 +79,10 @@ export default function Questionnaire() {
   const handleSubmit = async (event) => {
     event.preventDefault();
 
-    // Retrieve token from localStorage
     const token = localStorage.getItem("token");
+    const baseUrl =
+      process.env.NEXT_PUBLIC_BACKEND_URL || "http://127.0.0.1:8000";
+
     if (!token) {
       alert("You are not authenticated. Please log in.");
       return;
@@ -88,7 +90,7 @@ export default function Questionnaire() {
 
     try {
       const response = await fetch(
-        "http://127.0.0.1:8000/update-questionnaire/",
+        `${baseUrl}/generate-roadmap-from-questionnaire/`,
         {
           method: "POST",
           headers: {
@@ -97,8 +99,10 @@ export default function Questionnaire() {
           },
           credentials: "include",
           body: JSON.stringify({
-            careerGoals,
-            skills,
+            major: textInput,
+            concentration: dropdownValue,
+            current_skills: tags,
+            interests: selectedOptions,
           }),
         }
       );

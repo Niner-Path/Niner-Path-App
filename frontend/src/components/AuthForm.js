@@ -36,22 +36,39 @@ export default function AuthForm() {
     console.log("Response Data:", data);
 
     if (response.ok) {
-      alert(`${isSignUp ? "Signup" : "Login"} successful!`);
+      if (isSignUp) {
+        // Signup succeeded — now auto-login
+        const loginResponse = await fetch("http://127.0.0.1:8000/login/", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email, password }),
+        });
+        const loginData = await loginResponse.json();
 
-      localStorage.setItem("token", data.token);
+        if (loginResponse.ok) {
+          localStorage.setItem("token", loginData.token);
 
-      if (isSignUp || !data.has_completed_questionnaire) {
-        router.push("/questionnaire");
+          if (!loginData.has_completed_questionnaire) {
+            router.push("/questionnaire");
+          } else {
+            router.push("/dashboard");
+          }
+        } else {
+          alert(
+            `Login after signup failed: ${loginData.error || "Unknown error"}`
+          );
+        }
       } else {
-        router.push("/dashboard");
+        localStorage.setItem("token", data.token);
+
+        if (!data.has_completed_questionnaire) {
+          router.push("/questionnaire");
+        } else {
+          router.push("/dashboard");
+        }
       }
     } else {
-      const firstError =
-        typeof data === "object"
-          ? Object.values(data)[0]?.[0] || "Unknown error"
-          : "Unknown error";
-
-      alert(`Failed: ${firstError}`);
+      alert(`Failed: ${data.error || "Unknown error"}`);
     }
   };
 

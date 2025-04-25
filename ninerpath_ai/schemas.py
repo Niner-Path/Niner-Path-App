@@ -4,6 +4,8 @@ from typing import List
 class RoadmapRequest(BaseModel):
     major: str
     concentration: str
+    current_skills: List[str] = []
+    interests: List[str] = []
 
 class RoadmapStep(BaseModel):
     step: int
