@@ -1,6 +1,7 @@
 from django.contrib.auth import get_user_model, authenticate
 from rest_framework import serializers
 from core.models import CareerRoadmap
+from core.models import JobPreference
 
 User = get_user_model()
 
@@ -64,3 +65,16 @@ class CareerRoadmapSerializer(serializers.ModelSerializer):
             user = self.content["request"].user
             validated_data["user"] = user
             return super().create(validated_data)
+
+
+class JobPreferenceSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = JobPreference
+        fields = ["keywords", "location"]
+
+        def create(self, validated_data):
+            print(validated_data)   #TEST PRINT
+            user = self.content["request"].user
+            validated_data["user"] = user
+            return super().create(validated_data)
+        

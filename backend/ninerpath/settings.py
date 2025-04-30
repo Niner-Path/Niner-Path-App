@@ -6,8 +6,16 @@ import dj_database_url
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 SECRET_KEY = config('SECRET_KEY', default='django-insecure-$-2k7+4c#p26ghsnad7()o*=xt#^=r8^rwsr5m804+3%o-ywta')
+
+# JOOBLE_API_KEY = '0b162128-22e9-4e33-a232-a699fba6c00c'
+
+# Adzuna API Info
+ADZUNA_APP_ID = config('ADZUNA_APP_ID')
+ADZUNA_API_KEY = config('ADZUNA_API_KEY')
+
+
 DEBUG = config('DEBUG', default=True, cast=bool)
-ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='localhost,127.0.0.1', cast=Csv())
+ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='localhost,127.0.0.1,desktop-pbsit0n', cast=Csv())
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -88,10 +96,13 @@ USE_TZ = True
 STATIC_URL = 'static/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+# CHANGED TO TEST:  'http://localhost:3000' TO 'http://192.168.56.1:3000'
 CORS_ALLOWED_ORIGINS = [
-    'http://localhost:3000',
+    'http://192.168.56.1:3000',
+    'http://localhost:3000',  # ADDED: this for local development
     'https://ninerpath.vercel.app'
 ]
+
 CORS_ALLOW_CREDENTIALS = True
 
 AUTH_USER_MODEL = "core.CustomUser"

@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 
+#from core.models import CustomUser
 
 class CustomUser(AbstractUser):
     email = models.EmailField(unique=True)
@@ -40,3 +41,15 @@ class CareerTemplate(models.Model):
 
     def __str__(self):
         return self.career_name
+
+
+# JobPreference MODEL ADDED
+
+class JobPreference(models.Model):
+    user = models.OneToOneField(CustomUser, on_delete=models.CASCADE, related_name="job_preference")
+    keywords = models.JSONField(default=list)
+    location = models.JSONField(default=list)
+
+    def __str__(self):  
+        return f"{self.user.email}: {self.keywords} - {self.location}"     
+
