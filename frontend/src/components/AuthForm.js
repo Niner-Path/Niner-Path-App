@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useRouter } from "next/router"; 
+import { useRouter } from "next/router";
 import styles from "@/styles/AuthForm.module.css";
 import "@fortawesome/fontawesome-free/css/all.min.css";
 
@@ -14,35 +14,54 @@ export default function AuthForm() {
     event.preventDefault();
     const endpoint = isSignUp ? "register" : "login";
 
+    const requestBody = isSignUp
+      ? {
+          username,
+          email,
+          password,
+          has_completed_questionnaire: false,
+        }
+      : { email, password };
+
+    console.log("Sending request to:", `http://127.0.0.1:8000/${endpoint}/`);
+    console.log("Request Body:", requestBody);
+
     const response = await fetch(`http://127.0.0.1:8000/${endpoint}/`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email, password, username }),
+      body: JSON.stringify(requestBody),
     });
 
     const data = await response.json();
-    console.log(data);
+    console.log("Response Data:", data);
 
     if (response.ok) {
       alert(`${isSignUp ? "Signup" : "Login"} successful!`);
 
-      // Store authentication token
       localStorage.setItem("token", data.token);
 
-      // Determine where to redirect the user
       if (isSignUp || !data.has_completed_questionnaire) {
         router.push("/questionnaire");
       } else {
         router.push("/dashboard");
       }
     } else {
-      alert(`Failed: ${data.error || "Unknown error"}`);
+      const firstError =
+        typeof data === "object"
+          ? Object.values(data)[0]?.[0] || "Unknown error"
+          : "Unknown error";
+
+      alert(`Failed: ${firstError}`);
     }
   };
 
   return (
     <div className={styles.backgroundImage}>
-      <div className={`${styles.container} ${isSignUp ? styles.rightPanelActive : ""}`}>
+      <div
+        className={`${styles.container} ${
+          isSignUp ? styles.rightPanelActive : ""
+        }`}
+      >
         {/* Sign Up Form */}
         <div className={`${styles.formContainer} ${styles.signUpContainer}`}>
           <form onSubmit={handleAuth}>
