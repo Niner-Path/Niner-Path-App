@@ -129,9 +129,13 @@ class CareerRoadmapView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
-        roadmap = get_object_or_404(CareerRoadmap, user=request.user)
-        serializer = CareerRoadmapSerializer(roadmap)
-        return Response(serializer.data)
+        roadmap = CareerRoadmap.objects.filter(user=request.user).first()
+        if roadmap:
+            serializer = CareerRoadmapSerializer(roadmap)
+            return Response(serializer.data)
+        else:
+            return Response({"milestones": [], "message": "No roadmap found"}, status=status.HTTP_200_OK)
+
 
     def post(self, request):
         if CareerRoadmap.objects.filter(user=request.user).exists():

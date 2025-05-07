@@ -77,7 +77,7 @@ export default function Questionnaire() {
   })();
 
   const handleSubmit = async (event) => {
-    event.preventDefault();
+    if (event) event.preventDefault();
 
     const token = localStorage.getItem("token");
     const baseUrl =
@@ -114,6 +114,7 @@ export default function Questionnaire() {
 
       router.push("/dashboard");
     } catch (err) {
+      console.error("Submission error:", err);
       alert(err.message);
     }
   };
@@ -295,7 +296,13 @@ export default function Questionnaire() {
             })()}
 
             <button
-              onClick={nextQuestion}
+              onClick={(e) => {
+                if (activeQuestion === questions.length - 1) {
+                  handleSubmit(e); // Trigger backend POST and redirect
+                } else {
+                  nextQuestion(); // Advance to next question
+                }
+              }}
               disabled={!isAnswered}
               className={!isAnswered ? "btn-disabled" : ""}
             >
