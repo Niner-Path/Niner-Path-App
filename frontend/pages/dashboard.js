@@ -25,7 +25,6 @@ export default function Dashboard() {
 
   return (
     <div className="flex h-full overflow-hidden bg-gray-100">
-      {/* LEFT: scroll only this panel */}
       <section className="w-1/2 h-full overflow-y-auto p-6 bg-white">
         <h2 className="text-2xl font-bold text-blue-900 mb-6">
           Personalized Career Roadmap
@@ -53,7 +52,6 @@ export default function Dashboard() {
         </ol>
       </section>
 
-      {/* RIGHT: fixed height, no scroll */}
       <section className="w-1/2 h-full p-6 bg-white flex flex-col justify-between border-l">
         <div>
           <h2 className="text-2xl font-bold text-blue-900 mb-4">
