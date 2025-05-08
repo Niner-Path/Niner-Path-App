@@ -2,26 +2,68 @@ import { useEffect, useState } from "react";
 
 export default function Dashboard() {
   const [roadmap, setRoadmap] = useState([]);
+  const [token, setToken] = useState(null);
+
+  const [keyword, setKeyword] = useState("");
+  const [locationTerm, setLocationTerm] = useState("");
+  const [internships, setInternships] = useState([]);
+  const [loadingSearch, setLoadingSearch] = useState(false);
+  const [searchError, setSearchError] = useState("");
 
   useEffect(() => {
-    async function fetchRoadmap() {
-      const token = localStorage.getItem("token");
-      const res = await fetch("http://127.0.0.1:8000/career-roadmap/", {
-        headers: { Authorization: `Token ${token}` },
-      });
-      if (res.ok) {
-        const data = await res.json();
+    const t = localStorage.getItem("token");
+    if (t) setToken(t);
+    else alert("You are not authenticated. Please log in.");
+  }, []);
+
+  useEffect(() => {
+    if (!token) return;
+    fetch("http://localhost:8000/career-roadmap/", {
+      headers: { Authorization: `Token ${token}` },
+    })
+      .then((res) => res.json())
+      .then((data) =>
         setRoadmap(
           data.milestones.map((item, idx) => ({
             step: idx + 1,
             title: item.title || `Step ${idx + 1}`,
             description: item.description || "",
           }))
-        );
-      }
+        )
+      );
+  }, [token]);
+
+  const handleSearch = async () => {
+    if (!keyword.trim() && !locationTerm.trim()) {
+      return setSearchError("Enter keywords or a location to search.");
     }
-    fetchRoadmap();
-  }, []);
+
+    setLoadingSearch(true);
+    setSearchError("");
+
+    let query = "?";
+    if (keyword.trim()) query += `what=${encodeURIComponent(keyword.trim())}`;
+    if (locationTerm.trim()) {
+      if (query.length > 1) query += "&";
+      query += `where=${encodeURIComponent(locationTerm.trim())}`;
+    }
+
+    try {
+      const res = await fetch(`http://localhost:8000/job-listings/${query}`, {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Token ${token}`,
+        },
+      });
+      if (!res.ok) throw new Error(`Search failed (${res.status})`);
+      const data = await res.json();
+      setInternships(data);
+    } catch (err) {
+      setSearchError(err.message);
+    } finally {
+      setLoadingSearch(false);
+    }
+  };
 
   return (
     <div className="flex h-full overflow-hidden bg-gray-100">
@@ -52,22 +94,59 @@ export default function Dashboard() {
         </ol>
       </section>
 
-      <section className="w-1/2 h-full p-6 bg-white flex flex-col justify-between border-l">
-        <div>
-          <h2 className="text-2xl font-bold text-blue-900 mb-4">
-            Internship & Freelance Finder
-          </h2>
-          <p className="text-gray-700">
-            Discover internship and freelance opportunities to gain real-world
-            experience and boost your resume.
-          </p>
-          <p className="mt-2 text-gray-600 text-sm">
-            Uses APIs from LinkedIn, Indeed, Upwork, and Fiverr.
-          </p>
+      <section className="w-1/2 h-full overflow-y-auto p-6 bg-gray-50">
+        <h2 className="text-2xl font-bold mb-4">Internship Finder</h2>
+
+        <div className="flex gap-2 mb-6">
+          <input
+            type="text"
+            placeholder="Keyword (e.g. Software)"
+            value={keyword}
+            onChange={(e) => setKeyword(e.target.value)}
+            className="flex-1 p-3 border border-gray-300 rounded-lg focus:outline-none"
+          />
+          <input
+            type="text"
+            placeholder="Location (e.g. Concord)"
+            value={locationTerm}
+            onChange={(e) => setLocationTerm(e.target.value)}
+            className="flex-1 p-3 border border-gray-300 rounded-lg focus:outline-none"
+          />
+          <button
+            onClick={handleSearch}
+            disabled={loadingSearch}
+            className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 disabled:opacity-50"
+          >
+            {loadingSearch ? "Searching..." : "Search"}
+          </button>
         </div>
-        <button className="mt-6 bg-blue-700 hover:bg-blue-800 text-white font-semibold py-2 px-6 rounded-lg transition">
-          Search Opportunities
-        </button>
+
+        {searchError && <p className="text-red-500 mb-4">{searchError}</p>}
+
+        {loadingSearch ? (
+          <p>Loading results…</p>
+        ) : internships.length === 0 ? (
+          <p className="text-gray-600">
+            No internships found. Try different keywords or location.
+          </p>
+        ) : (
+          <ul className="space-y-4">
+            {internships.map((job, idx) => (
+              <li
+                key={idx}
+                className="bg-white p-4 rounded-lg shadow hover:shadow-md transition"
+              >
+                <h3 className="text-lg font-semibold">{job.title}</h3>
+                <p className="text-sm text-gray-700">
+                  {job.company} — {job.location}
+                </p>
+                <p className="mt-2 text-sm text-gray-600 line-clamp-3">
+                  {job.description}
+                </p>
+              </li>
+            ))}
+          </ul>
+        )}
       </section>
     </div>
   );

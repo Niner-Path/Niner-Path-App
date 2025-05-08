@@ -73,7 +73,7 @@ class JobPreferenceSerializer(serializers.ModelSerializer):
         fields = ["keywords", "location"]
 
         def create(self, validated_data):
-            print(validated_data)   #TEST PRINT
+            print(validated_data)
             user = self.content["request"].user
             validated_data["user"] = user
             return super().create(validated_data)
