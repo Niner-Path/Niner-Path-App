@@ -312,7 +312,6 @@ class JobListingView(APIView):
         data = resp.json()
         jobs = data.get("results", [])
 
-        # format response
         formatted = []
         for job in jobs:
             formatted.append({
