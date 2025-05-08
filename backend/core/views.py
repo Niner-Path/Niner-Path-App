@@ -89,25 +89,16 @@ class UpdateQuestionnaireView(APIView):
 
     def post(self, request):
         if request.user.is_anonymous:
-            return Response(
-                {"error": "User is not authenticated"},
-                status=status.HTTP_401_UNAUTHORIZED,
-            )
+            return Response({"error": "User is not authenticated"}, status=status.HTTP_401_UNAUTHORIZED)
 
         career_goal = request.data.get("careerGoals")
         if not career_goal:
-            return Response(
-                {"error": "Career goal is required"},
-                status=status.HTTP_400_BAD_REQUEST,
-            )
+            return Response({"error": "Career goal is required"}, status=status.HTTP_400_BAD_REQUEST)
 
         try:
             template = CareerTemplate.objects.get(career_name=career_goal)
         except CareerTemplate.DoesNotExist:
-            return Response(
-                {"error": "No matching career template found"},
-                status=status.HTTP_404_NOT_FOUND,
-            )
+            return Response({"error": "No matching career template found"}, status=status.HTTP_404_NOT_FOUND)
 
         roadmap, created = CareerRoadmap.objects.get_or_create(
             user=request.user,
@@ -121,10 +112,7 @@ class UpdateQuestionnaireView(APIView):
         request.user.save()
 
         return Response(
-            {
-                "message": "Questionnaire updated successfully",
-                "roadmap": CareerRoadmapSerializer(roadmap).data,
-            },
+            {"message": "Questionnaire updated successfully", "roadmap": CareerRoadmapSerializer(roadmap).data},
             status=status.HTTP_200_OK,
         )
 
@@ -137,19 +125,12 @@ class CareerRoadmapView(APIView):
         roadmap = CareerRoadmap.objects.filter(user=request.user).first()
         if roadmap:
             return Response(CareerRoadmapSerializer(roadmap).data)
-        return Response(
-            {"milestones": [], "message": "No roadmap found"}, status=status.HTTP_200_OK
-        )
+        return Response({"milestones": [], "message": "No roadmap found"}, status=status.HTTP_200_OK)
 
     def post(self, request):
         if CareerRoadmap.objects.filter(user=request.user).exists():
-            return Response(
-                {"error": "Career roadmap already exists"},
-                status=status.HTTP_400_BAD_REQUEST,
-            )
-        serializer = CareerRoadmapSerializer(
-            data=request.data, context={"request": request}
-        )
+            return Response({"error": "Career roadmap already exists"}, status=status.HTTP_400_BAD_REQUEST)
+        serializer = CareerRoadmapSerializer(data=request.data, context={"request": request})
         if serializer.is_valid():
             serializer.save(user=request.user)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
@@ -157,9 +138,7 @@ class CareerRoadmapView(APIView):
 
     def put(self, request):
         roadmap = get_object_or_404(CareerRoadmap, user=request.user)
-        serializer = CareerRoadmapSerializer(
-            roadmap, data=request.data, partial=True
-        )
+        serializer = CareerRoadmapSerializer(roadmap, data=request.data, partial=True)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data)
@@ -168,10 +147,7 @@ class CareerRoadmapView(APIView):
     def delete(self, request):
         roadmap = get_object_or_404(CareerRoadmap, user=request.user)
         roadmap.delete()
-        return Response(
-            {"message": "Career roadmap deleted successfully"},
-            status=status.HTTP_204_NO_CONTENT,
-        )
+        return Response({"message": "Career roadmap deleted successfully"}, status=status.HTTP_204_NO_CONTENT)
 
 
 class GenerateRoadmapFromQuestionnaireView(APIView):
@@ -186,14 +162,9 @@ class GenerateRoadmapFromQuestionnaireView(APIView):
         interests = data.get("interests", [])
 
         if not major or not concentration:
-            return Response(
-                {"error": "Major and concentration are required."},
-                status=status.HTTP_400_BAD_REQUEST,
-            )
+            return Response({"error": "Major and concentration are required."}, status=status.HTTP_400_BAD_REQUEST)
 
-        career_goal, steps = generate_roadmap_with_groq(
-            major, concentration, current_skills=skills, interests=interests
-        )
+        career_goal, steps = generate_roadmap_with_groq(major, concentration, current_skills=skills, interests=interests)
 
         roadmap, created = CareerRoadmap.objects.update_or_create(
             user=user,
@@ -224,20 +195,13 @@ class JobPreferenceView(APIView):
     def get(self, request):
         prefs = JobPreference.objects.filter(user=request.user)
         if not prefs.exists():
-            return Response(
-                {"error": "No job preferences found"}, status=status.HTTP_404_NOT_FOUND
-            )
+            return Response({"error": "No job preferences found"}, status=status.HTTP_404_NOT_FOUND)
         return Response(JobPreferenceSerializer(prefs, many=True).data)
 
     def post(self, request):
         if JobPreference.objects.filter(user=request.user).exists():
-            return Response(
-                {"error": "Job preference already exists"},
-                status=status.HTTP_400_BAD_REQUEST,
-            )
-        serializer = JobPreferenceSerializer(
-            data=request.data, context={"request": request}
-        )
+            return Response({"error": "Job preference already exists"}, status=status.HTTP_400_BAD_REQUEST)
+        serializer = JobPreferenceSerializer(data=request.data, context={"request": request})
         if serializer.is_valid():
             serializer.save(user=request.user)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
@@ -245,9 +209,7 @@ class JobPreferenceView(APIView):
 
     def put(self, request):
         jobpref = get_object_or_404(JobPreference, user=request.user)
-        serializer = JobPreferenceSerializer(
-            jobpref, data=request.data, partial=True
-        )
+        serializer = JobPreferenceSerializer(jobpref, data=request.data, partial=True)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data)
@@ -256,10 +218,7 @@ class JobPreferenceView(APIView):
     def delete(self, request):
         jobpref = get_object_or_404(JobPreference, user=request.user)
         jobpref.delete()
-        return Response(
-            {"message": "Job preference deleted successfully"},
-            status=status.HTTP_204_NO_CONTENT,
-        )
+        return Response({"message": "Job preference deleted successfully"}, status=status.HTTP_204_NO_CONTENT)
 
 
 @method_decorator(csrf_exempt, name="dispatch")
@@ -267,28 +226,24 @@ class JobListingView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
-        """
-        GET /job-listings/?what=software&where=concord
-        If `what` or `where` aren’t provided, fall back to the saved JobPreference.
-        """
         country = "us"
         results = 10
 
-        jobpref = get_object_or_404(JobPreference, user=request.user)
-        keywords = jobpref.keywords
-        location = jobpref.location
+        jobpref = JobPreference.objects.filter(user=request.user).first()
 
         qs = request.query_params
-        if qs.get("what"):
-            keywords = qs["what"]
-        if qs.get("where"):
-            location = qs["where"]
+        keywords = qs.get("what") or (
+            ", ".join(jobpref.keywords) if jobpref and isinstance(jobpref.keywords, list) else (jobpref.keywords if jobpref else "")
+        )
+        location = qs.get("where") or (
+            ", ".join(jobpref.location) if jobpref and isinstance(jobpref.location, list) else (jobpref.location if jobpref else "")
+        )
+
+        if not keywords:
+            return Response({"error": "No keywords provided."}, status=status.HTTP_400_BAD_REQUEST)
 
         if not settings.ADZUNA_APP_ID or not settings.ADZUNA_API_KEY:
-            return Response(
-                {"error": "Adzuna API credentials are not set"},
-                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            )
+            return Response({"error": "Adzuna API credentials are not set"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
         base_url = f"https://api.adzuna.com/v1/api/jobs/{country}/search/1"
         params = {
@@ -304,10 +259,7 @@ class JobListingView(APIView):
             resp = requests.get(base_url, params=params)
             resp.raise_for_status()
         except requests.RequestException as e:
-            return Response(
-                {"error": f"Failed to fetch from Adzuna: {str(e)}"},
-                status=status.HTTP_502_BAD_GATEWAY,
-            )
+            return Response({"error": f"Failed to fetch from Adzuna: {str(e)}"}, status=status.HTTP_502_BAD_GATEWAY)
 
         data = resp.json()
         jobs = data.get("results", [])
@@ -315,9 +267,9 @@ class JobListingView(APIView):
         formatted = []
         for job in jobs:
             formatted.append({
-                "title":       job.get("title"),
-                "company":     job.get("company", {}).get("display_name"),
-                "location":    job.get("location", {}).get("display_name"),
+                "title": job.get("title"),
+                "company": job.get("company", {}).get("display_name"),
+                "location": job.get("location", {}).get("display_name"),
                 "description": job.get("description"),
             })
 
