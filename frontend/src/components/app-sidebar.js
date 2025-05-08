@@ -1,13 +1,13 @@
 import { useState } from "react";
 import Link from "next/link";
 import { Calendar, Home, Inbox, Search, Settings, Menu } from "lucide-react";
+import { Map, Briefcase, BookOpen, CheckSquare } from "lucide-react";
 import { usePathname } from "next/navigation";
 
 const menuItems = [
-  { title: "Dashboard", url: "/", icon: Home },
-  { title: "Inbox", url: "/inbox", icon: Inbox },
-  { title: "Calendar", url: "/calendar", icon: Calendar },
-  { title: "Search", url: "/search", icon: Search },
+  { title: "Opportunities", url: "/opportunities", icon: Briefcase },
+  { title: "Skill Builder", url: "/skills", icon: BookOpen },
+  { title: "Bulletin Board", url: "/board", icon: CheckSquare },
   { title: "Settings", url: "/settings", icon: Settings },
 ];
 
