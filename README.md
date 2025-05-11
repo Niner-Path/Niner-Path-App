@@ -14,15 +14,11 @@ NinerPath is a web-based platform designed to help college students navigate the
 
 ## 📌 Features & Sprints
 
-| Sprint | Feature | Description |
-|--------|---------|-------------|
-| 🟡 Sprint 1 | Onboarding & Dashboard | User sign-up, onboarding form, dashboard setup |
-| 🟡 Sprint 2 | Career & Financial Explorer | AI-based career guidance, salary analysis |
-| 🟠 Sprint 3 | Career Roadmaps | Step-by-step career preparation plans |
-| 🟢 Sprint 4 | Budget & Loan Planner | Financial forecasting and loan repayment simulations |
-| 🟠 Sprint 5 | Side Hustle Finder | AI-matched internships & freelance opportunities |
-| 🟤 Sprint 6 | AI Career & Finance Chatbot | NLP-driven chatbot for career & finance questions |
-
+| Feature | Description |
+|---------|-------------|
+| Onboarding & Dashboard | User sign-up, onboarding form, dashboard setup |
+| Career Roadmaps | Step-by-step career preparation plans |
+| Side Hustle Finder | AI-matched internships & freelance opportunities |
 ---
 
 ## 🔥 Getting Started
