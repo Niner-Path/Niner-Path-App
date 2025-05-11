@@ -1,7 +1,7 @@
 # 🚀 NinerPath
 
 ## 📖 About the Project
-NinerPath is a web-based platform designed to help college students navigate their academic and career journeys through personalized recommendations, financial planning, and interactive tools.
+NinerPath is a web-based platform designed to help college students navigate their academic and career journeys through personalized recommendations interactive features and tools.
 
 🔹 **Tech Stack**
 - **Frontend:** [Next.js](https://nextjs.org/), [TailwindCSS](https://tailwindcss.com/), Recharts
